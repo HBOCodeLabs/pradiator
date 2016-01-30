@@ -27,6 +27,11 @@ h1 {
   color: #FAA137;
 }
 
+a:link, a:visited, a:hover, a:active {
+  text-decoration: none;
+  color: #4f9cc2;
+}
+
 .github-logo {
   position: absolute;
   right: 20px;
@@ -48,13 +53,13 @@ h1 {
 }
 
 #pull-requests {
-  width: 67%;
+  width: 100%;
   float: left;
 }
 
 .pull-request {
   margin: 0 1.9em 1.9em 1.9em;
-  font-size: 2.1em;
+  font-size: 1.8em;
 }
 
 .repository {
@@ -63,10 +68,11 @@ h1 {
 }
 
 .meta {
-  font-size: 0.8em;
+  font-size: 0.6em;
 }
 
 #statistics {
+  display: none;
   width: 33%;
   float: left;
   padding-left: 30px;
