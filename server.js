@@ -75,11 +75,12 @@ app.get('/prs/:owner/:repo', function(req, res) {
                 var prs = JSON.parse(str);
                 prs = _.filter(prs, function(pr) {
                     var msDiff = new Date().getTime() - new Date(pr.updated_at).getTime();
-                    return (diff <= config.maxUpdatedAgeInHours * 60 * 60 * 1000);
+                    return (msDiff <= config.maxUpdatedAgeInHours * 60 * 60 * 1000);
                 });
 
                 res.status(200).json(prs);
             } catch(e) {
+                console.log(e);
                 res.sendStatus(500);
             }
         });
