@@ -2,6 +2,7 @@ var express = require('express')
 var https = require('https');
 var path = require('path');
 var fs = require('fs');
+var _ = require('underscore');
 
 var PORT = 8888;
 
@@ -15,6 +16,17 @@ var config = require('./config.json');
 
 if ((!config.accessToken) || (config.accessToken === '')) {
     throw new Error("No 'accessToken' supplied in config.json!");
+}
+
+// this env var overrides the value in the config file
+var age = process.env.MAX_UPDATED_AGE_IN_HOURS;
+if (age && Number(age)) {
+    config.maxUpdatedAgeInHours = Number(age);
+}
+
+// this env var supplements the value in the config file
+if (process.env.ADDITIONAL_REPOSITORIES) {
+    config.repositories = config.repositories.concat(_.map(process.env.ADDITIONAL_REPOSITORIES.split(','), String.trim));
 }
 
 // gets the configured list of repositories
@@ -58,11 +70,17 @@ app.get('/prs/:owner/:repo', function(req, res) {
         });
         response.on('end', function() {
             try {
-                // parse the data, then turn around and
-                // send it back in the response
-                res.status(200).json(JSON.parse(str));
+                // parse the data, filter it by the "last updated timestamp",
+                // then turn around and send it back in the response
+                var prs = JSON.parse(str);
+                prs = _.filter(prs, function(pr) {
+                    var msDiff = new Date().getTime() - new Date(pr.updated_at).getTime();
+                    return (diff <= config.maxUpdatedAgeInHours * 60 * 60 * 1000);
+                });
+
+                res.status(200).json(prs);
             } catch(e) {
-                console.sendStatus(500);
+                res.sendStatus(500);
             }
         });
     }
